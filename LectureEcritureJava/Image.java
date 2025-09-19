@@ -54,4 +54,12 @@ public class Image {
 					
             writer.close(); // Fermeture du fichier
     }
+	
+	static public read_txt (String filename) throws IOException {
+		
+		byte[] data = fs.readAllBytes();
+		String txt = new String (data, StandarCharset.UTF-8);
+		int nbToken = 0;
+		
+	}	
 }
