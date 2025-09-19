@@ -60,6 +60,29 @@ public class Image {
 		byte[] data = fs.readAllBytes();
 		String txt = new String (data, StandarCharset.UTF-8);
 		int nbToken = 0;
+		// TODO
+		
+	}	
+	
+	static public write_bin (String filename) throws IOException {
+		
+		FileOutputStream writer_bin = new FileOutputStream(filename);
+		
+		writer_bin.write("P6\n");
+		writer.write(width + " " + height + "\n");
+		writer_bin.write("255\n");
+		
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				writer_bin.write((byte)pixels[y][x][0]);
+				writer_bin.write((byte)pixels[y][x][1]);
+				writer_bin.write((byte)pixels[y][x][2]);
+			}
+			writer_bin.write("\n");
+		}
+		
+		
+		writer_bin.close();
 		
 	}	
 }
