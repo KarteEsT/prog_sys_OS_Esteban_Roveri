@@ -41,6 +41,7 @@ public class MemoryManager {
 
                 //! Complétez la fonction
                 // Utiliser System.arraycopy pour stocker MYFS1.0 dans le tableau de 1Mo
+                System.arraycopy(signature, 0, filesystemMemory, SUPERBLOCK_OFFSET, signature.length());
                 // Sauvegarder les variables du systeme (block size, total memory, etc, max inodes)
                 // exemple
                 // new byte[] { (byte)(value >>> 24), (byte)(value >>> 16), (byte)(value >>> 8), (byte)value};
