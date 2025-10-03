@@ -39,15 +39,15 @@ public class BlockFileFormat {
          * @param buffer tampon contenant les données brutes de l'en-tête
          */
         public void deserialize(ByteBuffer buffer) {
-            //! TODO Lire l'entier magique (magic) pour identifier le format
-            //! TODO Lire la version du format
-            //! TODO Lire le nombre de sections (count)
+        	int magic = buffer.getInt(); 
+        	int version = buffer.getInt();
+        	int count = buffer.getInt();
 
-            //! TODO Créer un tableau sectionPointers de taille count
+        	sectionPointers = new int[count];
 
             // Parcourir le nombre de sections et lire leurs pointeurs
             for (int i = 0; i < count; i++) {
-                //! TODO Lire un entier depuis le buffer et le stocker dans sectionPointers[i]
+            	sectionPointers[i] = buffer.getInt();
             }
         }
 
@@ -92,11 +92,19 @@ public class BlockFileFormat {
          */
         public void deserialize(ByteBuffer buffer) {
             //! TODO Lire le type de la section (int)
+            int type = buffer.getInt(); 
+        	
             //! TODO Lire le padding (1 octet, à ignorer)
+            int padding = buffer.getInt();
 
             //! TODO Lire les 250 octets du nom de la section
+            int nomSection = buffer.getInt();
+
             //! TODO Convertir ces octets en String avec StandardCharsets.UTF_8
+            String rawName = new String(nomSection, StandardCharsets.UTF_8);
+            
             //! TODO Nettoyer la chaîne (enlever les caractères nuls et espaces inutiles)
+            String cleanName = rawName.replace("\0", "").trim();
 
             //! TODO Lire encore 1 octet de padding
 
@@ -107,8 +115,11 @@ public class BlockFileFormat {
 
             for (int i = 0; i < remainingInts; i++) {
                 //! TODO Lire un entier (pointeur)
+                remainingInts.getInt();
+
                 //! TODO Si le pointeur vaut 0, arrêter la boucle (0 = emplacement non utilisé)
                 //! TODO Sinon, stocker le pointeur dans le tableau temporaire
+                
             }
 
             //! TODO Copier les pointeurs valides dans dataPointers (taille = count)
@@ -157,36 +168,45 @@ public class BlockFileFormat {
      * @throws IOException si le fichier n'existe pas, est inaccessible ou n'est pas valide
      */
     public static BlockFileFormat readFromFile(String filename) throws IOException {
-        RandomAccessFile file = null; // TODO ouvrir le fichier en lecture
+        RandomAccessFile file = null;
+        file = new RandomAccessFile(filename, "r");
         Header header = null; // TODO lire l'en-tête du fichier
+        file.read(header);
+        header.deserialize(buffer);
 
         // Vérifier si le header est valide (appel à header.isValid())
         // -> si ce n'est pas le cas, lever une exception IOException avec un message explicite
+        if (header.isValid()) {
+        	BlockFileFormat format = new BlockFileFormat();
+            format.header = header;
+            format.sections = new Section[header.sectionPointers.length];
 
-        BlockFileFormat format = new BlockFileFormat();
-        format.header = header;
-        format.sections = new Section[header.sectionPointers.length];
+            // Parcourir tous les pointeurs de sections indiqués dans le header :
+            for (int sectionPointer : header.sectionPointers) {
+                byte[] sectionData = new byte[BLOCK_SIZE];
 
-        // Parcourir tous les pointeurs de sections indiqués dans le header :
-        for (int sectionPointer : header.sectionPointers) {
-            byte[] sectionData = new byte[BLOCK_SIZE];
+                //! TODO Positionner le curseur du fichier à la bonne position
+                
+                
+                //! TODO Lire les données de la section dans le tableau
+                sectionData[sectionPointer] = sectionData.read();
 
-            //! TODO Positionner le curseur du fichier à la bonne position
-            //! TODO Lire les données de la section dans le tableau
+                ByteBuffer buffer = ByteBuffer.wrap(sectionData);
+                Section section = new Section();
+                section.deserialize(buffer);
 
-            ByteBuffer buffer = ByteBuffer.wrap(sectionData);
-            Section section = new Section();
-            section.deserialize(buffer);
-
-            // Pour chaque pointeur de bloc de données dans la section :
-            for (int i = 0; i < section.dataPointers.length; i++) {
-                byte[] blockData = new byte[BLOCK_SIZE];
-                //! TODO Positionner le curseur au bon endroit dans le fichier (pointeur * BLOCK_SIZE)
-                //! TODO Lire le bloc de données
-                section.dataBlocks[i] = new Block(blockData);
+                // Pour chaque pointeur de bloc de données dans la section :
+                for (int i = 0; i < section.dataPointers.length; i++) {
+                    byte[] blockData = new byte[BLOCK_SIZE];
+                    //! TODO Positionner le curseur au bon endroit dans le fichier (pointeur * BLOCK_SIZE)
+                    
+                    //! TODO Lire le bloc de données
+                    section.dataBlocks[i] = new Block(blockData);
+                }
             }
+        } else {
+        	throw new IOException ("Format de fichier invalide");
         }
-
         return format;
     }
 
