@@ -97,12 +97,13 @@ public class ProcessController {
      * @throws IOException si le lancement échoue
      */
     public Process executeInteractive(String command, String[] args) throws IOException {
-        // TODO Utiliser executeSimple pour lancer le processus
+        // Utiliser executeSimple pour lancer le processus
+        Process proc = executeSimple(command, args);
         // (Les flux restent accessibles par défaut)
 
         System.out.println("Mode interactif activé pour : " + command);
 
-        return null;
+        return proc;
     }
 
     /**
@@ -117,13 +118,20 @@ public class ProcessController {
     public int waitForProcess(Process process, int timeoutSeconds) throws InterruptedException {
 
         if (timeoutSeconds <= 0) {
-            // TODO Attendre indéfiniment avec process.waitFor()
-            return 0;
+            // Attendre indéfiniment avec process.waitFor()
+            process.waitFor();
+            return process.exitValue();
         } else {
-            // TODO Utiliser process.waitFor(timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
-            // TODO Si le processus se termine dans les temps, retourner process.exitValue()
-            // TODO Sinon, appeler process.destroyForcibly() et retourner -1
-            return -1;
+            // Utiliser process.waitFor(timeoutSeconds, java.util.concurrent.TimeUnit.SECONDS)
+            boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+            // Si le processus se termine dans les temps, retourner process.exitValue()
+            if (finished) {
+                return process.exitValue();
+            } else {
+                // Sinon, appeler process.destroyForcibly() et retourner -1
+                process.destroyForcibly();
+                return -1;
+            }
         }
     }
 
@@ -131,12 +139,14 @@ public class ProcessController {
      * Envoie des données à l'entrée standard d'un processus interactif.
      */
     public void sendInput(Process process, String input) throws IOException {
-        // TODO Obtenir l'OutputStream du processus
-        OutputStream outputStream = null;
+        // Obtenir l'OutputStream du processus
+        OutputStream outputStream = process.getOutpuStream();
 
         if (outputStream != null) {
-            // TODO Écrire les données + retour à la ligne
-            // TODO Appeler flush() pour forcer l'envoi
+            // Écrire les données + retour à la ligne
+            outputStream.write(input + "\n");
+            // Appeler flush() pour forcer l'envoi
+            outputStream.flush();
         }
 
         System.out.println("Envoi vers le processus : " + input);
@@ -146,14 +156,19 @@ public class ProcessController {
      * Lit la sortie standard d'un processus de manière non-bloquante.
      */
     public String readOutput(Process process) throws IOException {
-        // TODO Obtenir l'InputStream du processus
-        InputStream inputStream = null;
+        // Obtenir l'InputStream du processus
+        InputStream inputStream = process.getInputStream();
 
         if (inputStream != null) {
-            // TODO Vérifier s'il y a des données avec inputStream.available()
-            // TODO Si oui, les lire et les retourner comme String
+            // Vérifier s'il y a des données avec inputStream.available()
+            if (inputStream.available() > 0) {
+                // Si oui, les lire et les retourner comme String
+                byte[] buffer = new byte[inputStream.available()];
+                int byteRead = inputStream.readBuffer();
+                return new String(buffer, 0, bytesRead);
+            }
+            
         }
-
         return "";
     }
 
