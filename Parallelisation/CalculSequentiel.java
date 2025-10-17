@@ -10,14 +10,10 @@ public class CalculSequentiel {
 
         Calcule[] threads = new Calcule[DONNEES.length];
 
-        // Version parallèle
+        // Séquentiel
         for (int i = 0; i < DONNEES.length; i++) {
             threads[i] = new Calcule(DONNEES[i], MULTIPLICATEUR, i);
-            threads[i].start();
-        }
-
-        for (int i = 0; i < DONNEES.length; i++) {
-            threads[i].join(); 
+            threads[i].run();
             sommeTotal += threads[i].getResultat();
         }
 
