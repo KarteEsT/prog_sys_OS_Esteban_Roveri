@@ -1,4 +1,4 @@
-public class TestCompteur {
+public class TestMutex {
     private static final int NOMBRE_REPETITIONS = 50;
     private static final int NOMBRE_INCREMENTS = 1111111;
     private static Thread[] tableauThreads = new Thread[NOMBRE_REPETITIONS];
@@ -6,12 +6,12 @@ public class TestCompteur {
     public static void main(String[] args) throws InterruptedException {
         
         // Réinitialisation du compteur
-        CompteurDangereux.resetCompteur();
+        CompteurSecurise.resetCompteur();
         
         // Création des threads
         for (int i = 0; i < NOMBRE_REPETITIONS; i++) {
             tableauThreads[i] = new Thread(
-                new CompteurDangereux.Incrementeur("Thread " + i, NOMBRE_INCREMENTS)
+                new CompteurSecurise.Incrementeur("Thread " + i, NOMBRE_INCREMENTS)
             );
         }
 
@@ -28,7 +28,7 @@ public class TestCompteur {
 
         // Affichage des résultats
         long resultatAttendu = (long)NOMBRE_REPETITIONS * NOMBRE_INCREMENTS;
-        int resultatObtenu = CompteurDangereux.getCompteur();
+        int resultatObtenu = CompteurSecurise.getCompteur();
         
         System.out.println("Résultat attendu : " + resultatAttendu);
         System.out.println("Résultat obtenu  : " + resultatObtenu);
