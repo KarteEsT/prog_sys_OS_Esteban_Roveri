@@ -9,13 +9,27 @@ public class Serveur {
 
         while(true) {
             // 2. Acceptation d'une connexion cliente
-            Socket client = new serverSocket.accept();
+            Socket client = serverSocket.accept();
+            System.out.println("Client connecté : " + client.getInetAddress());
 
             // 3. Création des canaux input/output
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(client.getInputStream())
+            );
+            PrintWriter out = new PrintWriter(client.getOutputStream(), true);
 
             // 4. Boucle d'écho (lecture/écriture)
+            String ligne;
+            while ((ligne = in.readLine()) != null) {
+                System.out.println("Reçu : " + ligne);
+                out.println("ECHO: " + ligne);
+            }
 
             // 5. Fermeture de la connexion client
+            System.out.println("Client déconnecté");
+            in.close();
+            out.close();
+            client.close();
         }
     }
 }
