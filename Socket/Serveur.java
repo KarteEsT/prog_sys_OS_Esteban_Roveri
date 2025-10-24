@@ -4,9 +4,12 @@ import java.io.*;
 public class Serveur {
     public static void main(String[] args) throws Exception {
         // 1. Création du serveur et liaison au port 5000
+        ServerSocket serverSocket = new ServerSocket(5000);
+        System.out.println("Serveur démarré sur le port 5000");
 
         while(true) {
             // 2. Acceptation d'une connexion cliente
+            Socket client = new serverSocket.accept();
 
             // 3. Création des canaux input/output
 
